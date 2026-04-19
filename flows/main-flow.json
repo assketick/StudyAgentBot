@@ -1,0 +1,477 @@
+{
+  "name": "My workflow 2",
+  "nodes": [
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Listen for incoming events').first().json.message.from.id }}"
+      },
+      "id": "cbab8078-3ecf-47de-b59c-a1cbd6418d3e",
+      "name": "Window Buffer Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "position": [
+        2512,
+        720
+      ],
+      "typeVersion": 1.2
+    },
+    {
+      "parameters": {
+        "model": "=gpt-oss-120b",
+        "options": {}
+      },
+      "id": "55a836fb-f0e1-48be-b953-e7e2e08e2f4d",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        2240,
+        688
+      ],
+      "typeVersion": 1,
+      "credentials": {
+        "openAiApi": {
+          "id": "Fz8JhUFBCwCnr0Mo",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "id": "f6129b79-46ec-465c-a917-b2dd597c9e0f",
+      "name": "Listen for incoming events",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "position": [
+        832,
+        336
+      ],
+      "webhookId": "322dce18-f93e-4f86-b9b1-3305519b7834",
+      "typeVersion": 1,
+      "credentials": {
+        "telegramApi": {
+          "id": "TYmIXSdV5YnfSGKS",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Listen for incoming events').first().json.message.from.id }}",
+        "text": "={{ $json.output }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "HTML"
+        }
+      },
+      "id": "e5054d93-e4cb-4d6b-917b-a5dc7b529717",
+      "name": "Telegram",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        3072,
+        336
+      ],
+      "webhookId": "e699405e-8e52-4d38-a06b-1fa8edf050bd",
+      "typeVersion": 1.1,
+      "credentials": {
+        "telegramApi": {
+          "id": "TYmIXSdV5YnfSGKS",
+          "name": "Telegram account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "a0bf9719-4272-46f6-ab3b-eda6f7b44fd8",
+              "operator": {
+                "type": "string",
+                "operation": "empty",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.text }}",
+              "rightValue": ""
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "508145c5-5c48-4294-ac0d-7f8e5028a643",
+      "name": "If",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1728,
+        336
+      ],
+      "typeVersion": 2.2
+    },
+    {
+      "parameters": {
+        "resource": "audio",
+        "operation": "transcribe",
+        "options": {}
+      },
+      "id": "08ae0dcc-7846-44d4-b2e3-1150f6e7572e",
+      "name": "Speech to Text",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "position": [
+        2176,
+        256
+      ],
+      "typeVersion": 1.3,
+      "credentials": {
+        "openAiApi": {
+          "id": "Fz8JhUFBCwCnr0Mo",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fields": {
+          "values": [
+            {
+              "name": "text",
+              "stringValue": "={{ $('Listen for incoming events').first().json.message.text || \"\" }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "71ea73a0-a5db-4153-9531-19be6083ea4d",
+      "name": "Voice or Text",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1504,
+        336
+      ],
+      "typeVersion": 3.2
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "fileId": "={{ $('Listen for incoming events').item.json.message.voice.file_id }}",
+        "additionalFields": {}
+      },
+      "id": "f9b6fe61-0e09-4432-a582-0b62a8731861",
+      "name": "Get Voice File",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        1952,
+        256
+      ],
+      "webhookId": "24273e7e-6133-415e-8627-a9d6dc0f107c",
+      "typeVersion": 1.1,
+      "credentials": {
+        "telegramApi": {
+          "id": "TYmIXSdV5YnfSGKS",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Сообщение от telegram_user_id={{$json.allow}} \nТекст сообщения: {{ $json.text }}",
+        "options": {
+          "systemMessage": "=You are a helpful assistant.\n\nToday's date is {{ $now }}.\n\nGuidelines:\n- if there is a message about deadline, use postgres tool to execute an sql query and save the data to storage. If you don't have enough information to store the data you can ask user. The tables schema will be listed below.\n- if the user did not specify a date in the request assume they are asking for today\n- Use baserow tool to answer questions about tasks\n- When answering questions about calendar events, filter out events that don't apply to the question.  For example, the question is about events for today, only reply with events for today. Don't mention future events if it's more than 1 week away\n\nIMPORTANT:\n- your message will be sent to Telegram using HTML parse mode\n- use only Telegram-compatible HTML tags: <b>, <i>, <code>, <pre>\n- do not use markdown tables\n- format lists and saved deadlines as plain text with line breaks\n- do not output unsupported HTML tags\n\nPOSTGRES TABLE SCHEMA:\nclass User(Base):\n    __tablename__ = \"users\"\n\n    id: Mapped[int] = mapped_column(primary_key=True)\n    tg_user_id: Mapped[int] = mapped_column(\n        BigInteger, unique=True, index=True, nullable=False\n    )\n    username: Mapped[str | None] = mapped_column(String(255), nullable=True)\n    first_name: Mapped[str | None] = mapped_column(String(255), nullable=True)\n    last_name: Mapped[str | None] = mapped_column(String(255), nullable=True)\n    created_at: Mapped[datetime] = mapped_column(\n        DateTime(timezone=True), default=utcnow, nullable=False\n    )\n    updated_at: Mapped[datetime] = mapped_column(\n        DateTime(timezone=True),\n        default=utcnow,\n        onupdate=utcnow,\n        nullable=False,\n    )\n\n    deadlines: Mapped[list[\"Deadline\"]] = relationship(\n        back_populates=\"user\",\n        cascade=\"all, delete-orphan\",\n    )\n\n\nclass Deadline(Base):\n    __tablename__ = \"deadlines\"\n\n    id: Mapped[int] = mapped_column(primary_key=True)\n    user_id: Mapped[int] = mapped_column(\n        ForeignKey(\"users.id\", ondelete=\"CASCADE\"), nullable=False, index=True\n    )\n    title: Mapped[str] = mapped_column(String(500), nullable=False)\n    subject: Mapped[str | None] = mapped_column(String(255), nullable=True)\n    due_at: Mapped[datetime] = mapped_column(\n        DateTime(timezone=True), nullable=False, index=True\n    )\n    status: Mapped[str] = mapped_column(\n        String(32), default=\"active\", nullable=False, index=True\n    )\n    source_text: Mapped[str] = mapped_column(Text, nullable=False)\n    source_chat_id: Mapped[int | None] = mapped_column(\n        BigInteger, nullable=True, index=True\n    )\n    source_message_id: Mapped[int | None] = mapped_column(\n        BigInteger, nullable=True\n    )\n    reminded_at: Mapped[datetime | None] = mapped_column(\n        DateTime(timezone=True), nullable=True\n    )\n    created_at: Mapped[datetime] = mapped_column(\n        DateTime(timezone=True), default=utcnow, nullable=False\n    )\n    updated_at: Mapped[datetime] = mapped_column(\n        DateTime(timezone=True),\n        default=utcnow,\n        onupdate=utcnow,\n        nullable=False,\n    )\n\n    user: Mapped[\"User\"] = relationship(back_populates=\"deadlines\")\n\n    __table_args__ = (\n        Index(\"ix_deadlines_user_status_due_at\", \"user_id\", \"status\", \"due_at\"),\n    )\n"
+        }
+      },
+      "id": "40230414-3dfa-4e53-b5b0-f2380346b64b",
+      "name": "Angie, AI Assistant 👩🏻‍🏫",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        2448,
+        400
+      ],
+      "typeVersion": 1.6
+    },
+    {
+      "parameters": {
+        "content": "## Process Telegram Request\n",
+        "height": 327,
+        "width": 800,
+        "color": 5
+      },
+      "id": "e99295de-50bd-47d5-a122-e049522f35b3",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1488,
+        224
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1c20cf16-ec00-4ceb-9b0b-7192345a2d0b",
+              "name": "allow",
+              "type": "number",
+              "value": 499260283
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "3c861029-3fee-47db-a994-4c9b75895d4d",
+      "name": "AllowList",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1056,
+        336
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 3,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "14151637-9423-4c8e-9b5b-12c7869df9cc",
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $('Listen for incoming events').first().json.message.from.id }}",
+              "rightValue": "={{ $json.allow }}"
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "2bcd17b6-a6c5-4348-9408-3dd26fbf3a1c",
+      "name": "If1",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1280,
+        336
+      ],
+      "typeVersion": 2.3
+    },
+    {
+      "parameters": {
+        "content": "## Security: only allow authorized IDs\nPlease add the ids into the setting node that you want to authorize\n",
+        "height": 327,
+        "width": 448,
+        "color": 5
+      },
+      "id": "0997afe1-be45-4338-ade2-fc22adf96ca6",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1008,
+        224
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "description": "Call this tool to execute sql query in PostgreSQL Database.",
+        "workflowId": {
+          "__rl": true,
+          "value": "z8oyhSAmVpeMH4OH",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/z8oyhSAmVpeMH4OH",
+          "cachedResultName": "Postgres-Sub-Workflow"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "query": "={{ $fromAI(\"query\") }}"
+          },
+          "matchingColumns": [
+            "query"
+          ],
+          "schema": [
+            {
+              "id": "query",
+              "displayName": "query",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        2800,
+        688
+      ],
+      "id": "4eb4d9b1-242a-443b-930f-211a2717ba0b",
+      "name": "Call n8n Workflow Tool"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Get Voice File",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Angie, AI Assistant 👩🏻‍🏫",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Voice or Text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AllowList": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Voice or Text": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Voice File": {
+      "main": [
+        [
+          {
+            "node": "Speech to Text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Speech to Text": {
+      "main": [
+        [
+          {
+            "node": "Angie, AI Assistant 👩🏻‍🏫",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Angie, AI Assistant 👩🏻‍🏫",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Window Buffer Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Angie, AI Assistant 👩🏻‍🏫",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Listen for incoming events": {
+      "main": [
+        [
+          {
+            "node": "AllowList",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Angie, AI Assistant 👩🏻‍🏫": {
+      "main": [
+        [
+          {
+            "node": "Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call n8n Workflow Tool": {
+      "ai_tool": [
+        [
+          {
+            "node": "Angie, AI Assistant 👩🏻‍🏫",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "7bdaaecf-fe84-4443-9157-c1d123e412c5",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "7da312d70899664f516d5e77deb9b439877da5c4962b162a8174dabe3dc9723d"
+  },
+  "id": "nLlbcUE6TK8RjlQN",
+  "tags": []
+}
