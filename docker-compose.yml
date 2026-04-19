@@ -34,9 +34,22 @@ services:
       - DB_POSTGRESDB_DATABASE=${POSTGRES_DB}
       - DB_POSTGRESDB_USER=${POSTGRES_NON_ROOT_USER}
       - DB_POSTGRESDB_PASSWORD=${POSTGRES_NON_ROOT_PASSWORD}
-      - N8N_RUNNERS_MODE=external
-      - N8N_RUNNERS_AUTH_TOKEN=${RUNNERS_AUTH_TOKEN}
-      - N8N_RUNNERS_BROKER_LISTEN_ADDRESS=0.0.0.0
+      # - N8N_RUNNERS_MODE=external
+      # - N8N_RUNNERS_AUTH_TOKEN=${RUNNERS_AUTH_TOKEN}
+      # - N8N_RUNNERS_BROKER_LISTEN_ADDRESS=0.0.0.0
+      - N8N_HOST=lesha-bibasic-felix.ngrok-free.dev
+      - N8N_PROTOCOL=https
+      - N8N_PORT=5678
+      - N8N_EDITOR_BASE_URL=https://${PUBLIC_DOMAIN}
+      - WEBHOOK_URL=https://${PUBLIC_DOMAIN}
+      - N8N_PROXY_HOPS=1
+
+    
+      - N8N_DIAGNOSTICS_ENABLED=false
+      - N8N_VERSION_NOTIFICATIONS_ENABLED=false
+      - N8N_TEMPLATES_ENABLED=false
+
+
     ports:
       - 5678:5678
     links:
@@ -47,11 +60,11 @@ services:
       postgres:
         condition: service_healthy
 
-  n8n-runner:
-    image: n8nio/runners:${N8N_VERSION}
-    restart: always
-    environment:
-      - N8N_RUNNERS_AUTH_TOKEN=${RUNNERS_AUTH_TOKEN}
-      - N8N_RUNNERS_TASK_BROKER_URI=http://n8n:5679
-    depends_on:
-      - n8n
+  # n8n-runner:
+  #   image: n8nio/runners:${N8N_VERSION}
+  #   restart: always
+  #   environment:
+  #     - N8N_RUNNERS_AUTH_TOKEN=${RUNNERS_AUTH_TOKEN}
+  #     - N8N_RUNNERS_TASK_BROKER_URI=http://n8n:5679
+  #   depends_on:
+  #     - n8n
