@@ -1,0 +1,200 @@
+{
+    "name": "Web-Chat",
+    "nodes": [
+      {
+        "parameters": {
+          "sessionIdType": "customKey",
+          "sessionKey": "=499260283"
+        },
+        "id": "18bf4f1a-7dc3-4c49-90a9-0e208bf16e47",
+        "name": "Window Buffer Memory",
+        "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+        "position": [
+          1504,
+          496
+        ],
+        "typeVersion": 1.2
+      },
+      {
+        "parameters": {
+          "model": "=zai-org/GLM-5.1-FP8",
+          "options": {}
+        },
+        "id": "2cece888-753b-4539-8fad-ed68dc5395cc",
+        "name": "OpenAI Chat Model",
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+        "position": [
+          1232,
+          464
+        ],
+        "typeVersion": 1,
+        "credentials": {
+          "openAiApi": {
+            "id": "Fz8JhUFBCwCnr0Mo",
+            "name": "OpenAI account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "promptType": "define",
+          "text": "={{ $json.body.messages[0].content }}",
+          "options": {
+            "systemMessage": "=You are a helpful assistant.\n\nToday's date is {{ $now }}.\n\nGuidelines:\n- if there is a message about deadline, use postgres tool to execute an sql query and save the data to storage. If you don't have enough information to store the data you can ask user. The tables schema will be listed below.\n- if the user did not specify a date in the request assume they are asking for today\n- Use baserow tool to answer questions about tasks\n- When answering questions about calendar events, filter out events that don't apply to the question.  For example, the question is about events for today, only reply with events for today. Don't mention future events if it's more than 1 week away\n\nIMPORTANT:\n- your message will be sent to Telegram using HTML parse mode\n- use only Telegram-compatible HTML tags: <b>, <i>, <code>, <pre>\n- do not use markdown tables\n- format lists and saved deadlines as plain text with line breaks\n- do not output unsupported HTML tags\n\nPOSTGRES TABLE SCHEMA:\nclass User(Base):\n    __tablename__ = \"users\"\n\n    id: Mapped[int] = mapped_column(primary_key=True)\n    tg_user_id: Mapped[int] = mapped_column(\n        BigInteger, unique=True, index=True, nullable=False\n    )\n    username: Mapped[str | None] = mapped_column(String(255), nullable=True)\n    first_name: Mapped[str | None] = mapped_column(String(255), nullable=True)\n    last_name: Mapped[str | None] = mapped_column(String(255), nullable=True)\n    created_at: Mapped[datetime] = mapped_column(\n        DateTime(timezone=True), default=utcnow, nullable=False\n    )\n    updated_at: Mapped[datetime] = mapped_column(\n        DateTime(timezone=True),\n        default=utcnow,\n        onupdate=utcnow,\n        nullable=False,\n    )\n\n    deadlines: Mapped[list[\"Deadline\"]] = relationship(\n        back_populates=\"user\",\n        cascade=\"all, delete-orphan\",\n    )\n\n\nclass Deadline(Base):\n    __tablename__ = \"deadlines\"\n\n    id: Mapped[int] = mapped_column(primary_key=True)\n    user_id: Mapped[int] = mapped_column(\n        ForeignKey(\"users.id\", ondelete=\"CASCADE\"), nullable=False, index=True\n    )\n    title: Mapped[str] = mapped_column(String(500), nullable=False)\n    subject: Mapped[str | None] = mapped_column(String(255), nullable=True)\n    due_at: Mapped[datetime] = mapped_column(\n        DateTime(timezone=True), nullable=False, index=True\n    )\n    status: Mapped[str] = mapped_column(\n        String(32), default=\"active\", nullable=False, index=True\n    )\n    source_text: Mapped[str] = mapped_column(Text, nullable=False)\n    source_chat_id: Mapped[int | None] = mapped_column(\n        BigInteger, nullable=True, index=True\n    )\n    source_message_id: Mapped[int | None] = mapped_column(\n        BigInteger, nullable=True\n    )\n    reminded_at: Mapped[datetime | None] = mapped_column(\n        DateTime(timezone=True), nullable=True\n    )\n    created_at: Mapped[datetime] = mapped_column(\n        DateTime(timezone=True), default=utcnow, nullable=False\n    )\n    updated_at: Mapped[datetime] = mapped_column(\n        DateTime(timezone=True),\n        default=utcnow,\n        onupdate=utcnow,\n        nullable=False,\n    )\n\n    user: Mapped[\"User\"] = relationship(back_populates=\"deadlines\")\n\n    __table_args__ = (\n        Index(\"ix_deadlines_user_status_due_at\", \"user_id\", \"status\", \"due_at\"),\n    )\n"
+          }
+        },
+        "id": "8d05264e-f01f-4c5b-8ed3-d535fc8e7ac0",
+        "name": "Angie, AI Assistant 👩🏻‍🏫",
+        "type": "@n8n/n8n-nodes-langchain.agent",
+        "position": [
+          1440,
+          176
+        ],
+        "typeVersion": 1.6
+      },
+      {
+        "parameters": {
+          "description": "Call this tool to execute sql query in PostgreSQL Database.",
+          "workflowId": {
+            "__rl": true,
+            "value": "z8oyhSAmVpeMH4OH",
+            "mode": "list",
+            "cachedResultUrl": "/workflow/z8oyhSAmVpeMH4OH",
+            "cachedResultName": "Postgres-Sub-Workflow"
+          },
+          "workflowInputs": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "query": "={{ $fromAI(\"query\") }}"
+            },
+            "matchingColumns": [
+              "query"
+            ],
+            "schema": [
+              {
+                "id": "query",
+                "displayName": "query",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "canBeUsedToMatch": true,
+                "type": "string",
+                "removed": false
+              }
+            ],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          }
+        },
+        "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+        "typeVersion": 2.2,
+        "position": [
+          1792,
+          464
+        ],
+        "id": "ec637cca-ff7f-48fd-89e7-ec81afe5458c",
+        "name": "Call n8n Workflow Tool"
+      },
+      {
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "v1/chat/completions",
+          "responseMode": "responseNode",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 2.1,
+        "position": [
+          1120,
+          192
+        ],
+        "id": "8552a93d-d4bf-4c2b-a76f-4639d3275dd2",
+        "name": "Webhook",
+        "webhookId": "00d8ea1c-a19c-4398-8635-05678d5bc460"
+      },
+      {
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={\n    \"id\": 123,\n    \"created\": 1776806095,\n    \"model\": \"gpt4o-mini\",\n    \"object\": \"chat.completion\",\n    \"system_fingerprint\": null,\n    \"choices\": [\n        {\n            \"finish_reason\": \"stop\",\n            \"index\": 0,\n            \"message\": {\n                \"content\": \"{{ $json.output }}\",\n                \"role\": \"assistant\",\n                \"tool_calls\": null,\n                \"function_call\": null,\n                \"reasoning_content\": \"\"\n            },\n            \"provider_specific_fields\": {\n                \"matched_stop\": 200002\n            }\n        }\n    ],\n    \"usage\": {\n        \"completion_tokens\": 77,\n        \"prompt_tokens\": 72,\n        \"total_tokens\": 149,\n        \"completion_tokens_details\": null,\n        \"prompt_tokens_details\": null\n    },\n    \"service_tier\": null,\n    \"metadata\": {\n        \"weight_version\": \"default\"\n    }\n}",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.5,
+        "position": [
+          1792,
+          176
+        ],
+        "id": "4580bccb-fef3-4d92-a03a-303ca2aea49c",
+        "name": "Respond to Webhook"
+      }
+    ],
+    "pinData": {},
+    "connections": {
+      "Window Buffer Memory": {
+        "ai_memory": [
+          [
+            {
+              "node": "Angie, AI Assistant 👩🏻‍🏫",
+              "type": "ai_memory",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenAI Chat Model": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "Angie, AI Assistant 👩🏻‍🏫",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Angie, AI Assistant 👩🏻‍🏫": {
+        "main": [
+          [
+            {
+              "node": "Respond to Webhook",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Call n8n Workflow Tool": {
+        "ai_tool": [
+          [
+            {
+              "node": "Angie, AI Assistant 👩🏻‍🏫",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Webhook": {
+        "main": [
+          [
+            {
+              "node": "Angie, AI Assistant 👩🏻‍🏫",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "active": false,
+    "settings": {
+      "executionOrder": "v1",
+      "binaryMode": "separate"
+    },
+    "versionId": "3e4368a9-a9e5-4c6a-9846-359cbbc3b2d8",
+    "meta": {
+      "instanceId": "7da312d70899664f516d5e77deb9b439877da5c4962b162a8174dabe3dc9723d"
+    },
+    "id": "Kemfy9VJKnnYGgFK",
+    "tags": []
+  }

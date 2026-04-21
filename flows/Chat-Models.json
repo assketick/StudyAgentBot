@@ -1,0 +1,61 @@
+{
+    "name": "Chat Models",
+    "nodes": [
+      {
+        "parameters": {
+          "path": "v1/models",
+          "responseMode": "responseNode",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 2.1,
+        "position": [
+          0,
+          0
+        ],
+        "id": "de9a09ca-ebb4-4b69-b818-bec52d1a40ec",
+        "name": "Webhook",
+        "webhookId": "a6bfe8ce-4787-4b87-978e-868329a0d271"
+      },
+      {
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "{\n    \"data\": [\n    {\n      \"id\": \"gpt-4o-mini\",\n      \"object\": \"model\",\n      \"created\": 0,\n      \"owned_by\": \"n8n\"\n    }\n  ]\n}",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.5,
+        "position": [
+          208,
+          0
+        ],
+        "id": "400ac895-98c6-4135-b0d3-8074b287e1ed",
+        "name": "Respond to Webhook"
+      }
+    ],
+    "pinData": {},
+    "connections": {
+      "Webhook": {
+        "main": [
+          [
+            {
+              "node": "Respond to Webhook",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "active": true,
+    "settings": {
+      "executionOrder": "v1",
+      "binaryMode": "separate"
+    },
+    "versionId": "7c22e800-730c-4c33-be5f-0a701ad330c8",
+    "meta": {
+      "instanceId": "7da312d70899664f516d5e77deb9b439877da5c4962b162a8174dabe3dc9723d"
+    },
+    "id": "aC6Zw3i36CK5iDdF",
+    "tags": []
+  }
