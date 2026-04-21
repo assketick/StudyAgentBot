@@ -1,6 +1,15 @@
 from datetime import datetime, timezone
 
-from sqlalchemy import BigInteger, DateTime, ForeignKey, Index, String, Text
+import sqlalchemy as sa
+from sqlalchemy import (
+    BigInteger,
+    DateTime,
+    ForeignKey,
+    Index,
+    String,
+    Text,
+    UniqueConstraint,
+)
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db import Base
@@ -31,6 +40,10 @@ class User(Base):
     )
 
     deadlines: Mapped[list["Deadline"]] = relationship(
+        back_populates="user",
+        cascade="all, delete-orphan",
+    )
+    chat_subscriptions: Mapped[list["ChatSubscription"]] = relationship(
         back_populates="user",
         cascade="all, delete-orphan",
     )
@@ -75,4 +88,58 @@ class Deadline(Base):
 
     __table_args__ = (
         Index("ix_deadlines_user_status_due_at", "user_id", "status", "due_at"),
+    )
+
+
+class ChatMessage(Base):
+    __tablename__ = "chat_messages"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    chat_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
+    message_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
+    sender_tg_user_id: Mapped[int | None] = mapped_column(BigInteger, nullable=True)
+    sender_username: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    sender_first_name: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    text: Mapped[str | None] = mapped_column(Text, nullable=True)
+    reply_to_message_id: Mapped[int | None] = mapped_column(
+        BigInteger, nullable=True
+    )
+    sent_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=utcnow, nullable=False
+    )
+
+    __table_args__ = (
+        UniqueConstraint(
+            "chat_id",
+            "message_id",
+            name="uq_chat_messages_chat_id_message_id",
+        ),
+        Index("ix_chat_messages_chat_id_sent_at", "chat_id", sa.text("sent_at DESC")),
+    )
+
+
+class ChatSubscription(Base):
+    __tablename__ = "chat_subscriptions"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    chat_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
+    user_id: Mapped[int] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+    )
+    notify_new_deadlines: Mapped[bool] = mapped_column(default=True, nullable=False)
+    notify_updates: Mapped[bool] = mapped_column(default=True, nullable=False)
+    notify_daily_digest: Mapped[bool] = mapped_column(default=True, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=utcnow, nullable=False
+    )
+
+    user: Mapped["User"] = relationship(back_populates="chat_subscriptions")
+
+    __table_args__ = (
+        UniqueConstraint(
+            "chat_id",
+            "user_id",
+            name="uq_chat_subscriptions_chat_id_user_id",
+        ),
     )
