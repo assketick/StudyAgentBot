@@ -1,0 +1,16 @@
+:80 {
+    header ngrok-skip-browser-warning "true"
+    handle /webhook/* {
+        reverse_proxy localhost:5678
+    }
+    handle /webhook-test/* {
+        reverse_proxy localhost:5678
+    }
+    handle /api/* {
+        uri strip_prefix /api
+        reverse_proxy localhost:8000
+    }
+    handle {
+        reverse_proxy localhost:3000
+    }
+}

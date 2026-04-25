@@ -42,7 +42,15 @@
       }
     }
   ],
-  "pinData": {},
+  "pinData": {
+    "When Executed by Another Workflow": [
+      {
+        "json": {
+          "query": "SELECT d.*, u.tg_user_id FROM deadlines d JOIN users u ON u.id = d.user_id WHERE d.status = 'active' AND d.due_at BETWEEN NOW() AND NOW() + INTERVAL '24 hours' AND d.reminded_at IS NULL"
+        }
+      }
+    ]
+  },
   "connections": {
     "When Executed by Another Workflow": {
       "main": [

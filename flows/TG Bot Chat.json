@@ -4,7 +4,7 @@
     {
       "parameters": {
         "sessionIdType": "customKey",
-        "sessionKey": "={{ $('Listen for incoming events').first().json.message.from.id }}"
+        "sessionKey": "={{ $('When Executed by Another Workflow').first().json.message.from.id }}"
       },
       "id": "103f0f12-431b-4bc4-a4c6-e156eb9d3cef",
       "name": "Window Buffer Memory",
@@ -37,30 +37,7 @@
     },
     {
       "parameters": {
-        "updates": [
-          "message"
-        ],
-        "additionalFields": {}
-      },
-      "id": "4ebcc501-6b65-46b6-bf48-cb910fdf5b4e",
-      "name": "Listen for incoming events",
-      "type": "n8n-nodes-base.telegramTrigger",
-      "position": [
-        448,
-        16
-      ],
-      "webhookId": "322dce18-f93e-4f86-b9b1-3305519b7834",
-      "typeVersion": 1,
-      "credentials": {
-        "telegramApi": {
-          "id": "NSEtlrAAOR6gCNW1",
-          "name": "Telegram account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "chatId": "={{ $('Listen for incoming events').first().json.message.from.id }}",
+        "chatId": "={{ $('When Executed by Another Workflow').first().json.message.from.id }}",
         "text": "={{ $json.output }}",
         "additionalFields": {
           "appendAttribution": false,
@@ -145,7 +122,7 @@
           "values": [
             {
               "name": "text",
-              "stringValue": "={{ $('Listen for incoming events').first().json.message.text || \"\" }}"
+              "stringValue": "={{ $('When Executed by Another Workflow').item.json.message.text }}"
             }
           ]
         },
@@ -217,29 +194,6 @@
     },
     {
       "parameters": {
-        "assignments": {
-          "assignments": [
-            {
-              "id": "1c20cf16-ec00-4ceb-9b0b-7192345a2d0b",
-              "name": "allow",
-              "type": "number",
-              "value": 839907871
-            }
-          ]
-        },
-        "options": {}
-      },
-      "id": "80210b52-3d35-46a9-9781-ac9286676014",
-      "name": "AllowList",
-      "type": "n8n-nodes-base.set",
-      "position": [
-        672,
-        16
-      ],
-      "typeVersion": 3.4
-    },
-    {
-      "parameters": {
         "conditions": {
           "options": {
             "caseSensitive": true,
@@ -251,10 +205,11 @@
             {
               "id": "14151637-9423-4c8e-9b5b-12c7869df9cc",
               "operator": {
-                "type": "number",
-                "operation": "equals"
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
               },
-              "leftValue": "={{ $('Listen for incoming events').first().json.message.from.id }}",
+              "leftValue": "={{ $json.tg_user_id }}",
               "rightValue": "={{ $json.allow }}"
             }
           ],
@@ -332,144 +287,66 @@
     },
     {
       "parameters": {
-        "conditions": {
-          "options": {
-            "caseSensitive": true,
-            "leftValue": "",
-            "typeValidation": "strict",
-            "version": 3
-          },
-          "conditions": [
-            {
-              "id": "74a6aaad-6a5f-4047-975d-efcc8dea6cf5",
-              "leftValue": "={{ $json.message.document.file_id }}",
-              "rightValue": "",
-              "operator": {
-                "type": "string",
-                "operation": "notEmpty",
-                "singleValue": true
-              }
-            }
-          ],
-          "combinator": "and"
-        },
+        "operation": "executeQuery",
+        "query": "select\n  tg_user_id\nfrom public.users\nwhere tg_user_id = {{ $json.message.from.id }}",
         "options": {}
       },
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2.3,
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
       "position": [
-        1200,
-        0
+        1056,
+        336
       ],
-      "id": "a6acd66a-8eea-4eaf-8926-79ba1f4fe4b3",
-      "name": "If2"
-    },
-    {
-      "parameters": {
-        "workflowId": {
-          "__rl": true,
-          "value": "UBok9BEcCcS6fBJT",
-          "mode": "list",
-          "cachedResultUrl": "/workflow/UBok9BEcCcS6fBJT",
-          "cachedResultName": "Sub RAG_indexing"
-        },
-        "workflowInputs": {
-          "mappingMode": "defineBelow",
-          "value": {
-            "file_id": "=={{ $json.message.document.file_id }}",
-            "chat_id": "=={{ $json.message.chat.id }}"
-          },
-          "matchingColumns": [],
-          "schema": [
-            {
-              "id": "file_id",
-              "displayName": "file_id",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "canBeUsedToMatch": true,
-              "type": "string",
-              "removed": false
-            },
-            {
-              "id": "chat_id",
-              "displayName": "chat_id",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "canBeUsedToMatch": true,
-              "type": "number",
-              "removed": false
-            }
-          ],
-          "attemptToConvertTypes": false,
-          "convertFieldsToString": true
-        },
-        "options": {
-          "waitForSubWorkflow": true
-        }
-      },
-      "type": "n8n-nodes-base.executeWorkflow",
-      "typeVersion": 1.3,
-      "position": [
-        1456,
-        -304
-      ],
-      "id": "8d257837-decf-43d4-a34a-bb953e6922ee",
-      "name": "Execute Workflow"
-    },
-    {
-      "parameters": {
-        "chatId": "=={{ $('Listen for incoming events').first().json.message.chat.id }}",
-        "text": "=✅ Файл успешно проиндексирован. Добавлено {{ $json.chunks_count }} фрагментов.",
-        "additionalFields": {}
-      },
-      "type": "n8n-nodes-base.telegram",
-      "typeVersion": 1.2,
-      "position": [
-        1664,
-        -304
-      ],
-      "id": "f6eb9a60-c468-4f25-9e9e-9fe0e97e815f",
-      "name": "Send a text message",
-      "webhookId": "d2ff79a8-3f57-47fa-afc7-2c60489611c1",
+      "id": "74a1224f-097a-4f6a-9ea3-39d7534bdedf",
+      "name": "Execute a SQL query",
       "credentials": {
-        "telegramApi": {
-          "id": "NSEtlrAAOR6gCNW1",
-          "name": "Telegram account"
+        "postgres": {
+          "id": "RomSOVlkU1yF6Cpz",
+          "name": "Postgres account"
         }
       }
     },
     {
       "parameters": {
-        "description": "Call this tool to find relevant information from user files",
-        "workflowId": {
-          "__rl": true,
-          "value": "iPhg6wfbKMfMbqzn",
-          "mode": "list",
-          "cachedResultUrl": "/workflow/iPhg6wfbKMfMbqzn",
-          "cachedResultName": "Sub RAG_search"
-        },
-        "workflowInputs": {
-          "mappingMode": "defineBelow",
-          "value": {},
-          "matchingColumns": [],
-          "schema": [],
-          "attemptToConvertTypes": false,
-          "convertFieldsToString": false
-        }
+        "inputSource": "passthrough"
       },
-      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
-      "typeVersion": 2.2,
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
       "position": [
-        2800,
-        368
+        768,
+        336
       ],
-      "id": "1677b14f-1281-4ecd-a94e-4b238e3b1b93",
-      "name": "Call n8n Workflow Tool1"
+      "id": "09afa0ad-87fc-4a21-af14-a233c76d247c",
+      "name": "When Executed by Another Workflow"
     }
   ],
-  "pinData": {},
+  "pinData": {
+    "When Executed by Another Workflow": [
+      {
+        "json": {
+          "update_id": 285007805,
+          "message": {
+            "message_id": 95,
+            "from": {
+              "id": 8625668002,
+              "is_bot": false,
+              "first_name": "Nikita",
+              "last_name": "Asket",
+              "language_code": "ru"
+            },
+            "chat": {
+              "id": 8625668002,
+              "first_name": "Nikita",
+              "last_name": "Asket",
+              "type": "private"
+            },
+            "date": 1777116246,
+            "text": "kuku"
+          }
+        }
+      }
+    ]
+  },
   "connections": {
     "If": {
       "main": [
@@ -494,17 +371,6 @@
         [
           {
             "node": "If2",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "AllowList": {
-      "main": [
-        [
-          {
-            "node": "If1",
             "type": "main",
             "index": 0
           }
@@ -566,17 +432,6 @@
         ]
       ]
     },
-    "Listen for incoming events": {
-      "main": [
-        [
-          {
-            "node": "AllowList",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Angie, AI Assistant 👩🏻‍🏫": {
       "main": [
         [
@@ -599,41 +454,23 @@
         ]
       ]
     },
-    "If2": {
+    "Execute a SQL query": {
       "main": [
         [
           {
-            "node": "Execute Workflow",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Voice or Text",
+            "node": "If1",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Execute Workflow": {
+    "When Executed by Another Workflow": {
       "main": [
         [
           {
-            "node": "Send a text message",
+            "node": "Execute a SQL query",
             "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Call n8n Workflow Tool1": {
-      "ai_tool": [
-        [
-          {
-            "node": "Angie, AI Assistant 👩🏻‍🏫",
-            "type": "ai_tool",
             "index": 0
           }
         ]
@@ -645,7 +482,7 @@
     "executionOrder": "v1",
     "binaryMode": "separate"
   },
-  "versionId": "b18e0b64-4a25-4ca3-b09b-cb7b6f768e30",
+  "versionId": "1638c512-ddd6-40f0-bb16-109b7f620103",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "51a38a7465d855d6b5262c5db6144654f8756201725b66210c2cf807901a5a97"

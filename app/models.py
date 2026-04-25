@@ -119,6 +119,18 @@ class ChatMessage(Base):
     )
 
 
+class AvailableChat(Base):
+    __tablename__ = "available_chats"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    chat_id: Mapped[int] = mapped_column(BigInteger, unique=True, index=True, nullable=False)
+    chat_title: Mapped[str | None] = mapped_column(Text, nullable=True)
+    added_by_tg_user_id: Mapped[int | None] = mapped_column(BigInteger, nullable=True)
+    added_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=utcnow, nullable=False
+    )
+
+
 class ChatSubscription(Base):
     __tablename__ = "chat_subscriptions"
 

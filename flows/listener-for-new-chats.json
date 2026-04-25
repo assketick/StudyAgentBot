@@ -1,0 +1,209 @@
+
+{
+  "name": "listener-for-new-chats",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "chats/new",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -496,
+        -16
+      ],
+      "id": "d255ec1e-bcb4-4148-83ea-8c1b48df4831",
+      "name": "Webhook",
+      "webhookId": "72d33e45-8ff2-4519-bc01-78b8808cac50"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "3877002f-da5a-44b8-bf59-60d9bc393c55",
+              "leftValue": "={{ $json.body.my_chat_member.new_chat_member.status }}",
+              "rightValue": "=left",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -240,
+        -16
+      ],
+      "id": "ea3336ee-809c-4494-b82f-d8115b6220f1",
+      "name": "if bot \"left\" chat"
+    },
+    {
+      "parameters": {
+        "operation": "deleteTable",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "available_chats",
+          "mode": "list",
+          "cachedResultName": "available_chats"
+        },
+        "deleteCommand": "delete",
+        "where": {
+          "values": [
+            {
+              "column": "chat_id",
+              "value": "={{ $json.body.my_chat_member.chat.id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        16,
+        -192
+      ],
+      "id": "3aca854b-1202-44a4-b956-8020d341f6be",
+      "name": "Delete chat from avaliable_chats",
+      "credentials": {
+        "postgres": {
+          "id": "RomSOVlkU1yF6Cpz",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO available_chats (chat_id, chat_title, added_by_tg_user_id)\nSELECT \n  {{ $json.body.my_chat_member.chat.id }},\n  '{{ $json.body.my_chat_member.chat.title }}',\n  {{ $json.body.my_chat_member.from.id }}\nWHERE\n  EXISTS (SELECT 1 FROM users WHERE tg_user_id = {{ $json.body.my_chat_member.from.id }})\n  AND NOT EXISTS (SELECT 1 FROM available_chats WHERE chat_id = {{ $json.body.my_chat_member.chat.id }})",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        288,
+        192
+      ],
+      "id": "d39c5bba-ca1e-472d-877d-317e69709ce6",
+      "name": "Insert new chat if user is registered and chat is not in DB already",
+      "credentials": {
+        "postgres": {
+          "id": "RomSOVlkU1yF6Cpz",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "3877002f-da5a-44b8-bf59-60d9bc393c55",
+              "leftValue": "={{ $json.body.my_chat_member.new_chat_member.status }}",
+              "rightValue": "=member",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        16,
+        80
+      ],
+      "id": "e0544a82-45a6-48bf-9c67-f23eab559428",
+      "name": "if bot \"left\" chat1"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "if bot \"left\" chat",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "if bot \"left\" chat": {
+      "main": [
+        [
+          {
+            "node": "Delete chat from avaliable_chats",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "if bot \"left\" chat1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert new chat if user is registered and chat is not in DB already": {
+      "main": [
+        []
+      ]
+    },
+    "if bot \"left\" chat1": {
+      "main": [
+        [
+          {
+            "node": "Insert new chat if user is registered and chat is not in DB already",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "99775d4f-bfc6-4640-9bba-783e34fb828f",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "7da312d70899664f516d5e77deb9b439877da5c4962b162a8174dabe3dc9723d"
+  },
+  "id": "u0UYnXtslrH0RGaK",
+  "tags": []
+}

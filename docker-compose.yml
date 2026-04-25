@@ -1,7 +1,6 @@
 volumes:
   db_storage:
   n8n_storage:
-  open-webui:
 
 services:
   postgres:
@@ -9,6 +8,7 @@ services:
       context: .
       dockerfile: Dockerfile.postgres
     restart: always
+    container_name: n8n-postgres
     environment:
       - POSTGRES_USER
       - POSTGRES_PASSWORD
@@ -29,17 +29,15 @@ services:
   n8n:
     image: docker.n8n.io/n8nio/n8n:${N8N_VERSION}
     restart: always
+    container_name: n8n
     environment:
       - DB_TYPE=postgresdb
-      - DB_POSTGRESDB_HOST=postgres
+      - DB_POSTGRESDB_HOST=n8n-postgres
       - DB_POSTGRESDB_PORT=5432
       - DB_POSTGRESDB_DATABASE=${POSTGRES_DB}
       - DB_POSTGRESDB_USER=${POSTGRES_NON_ROOT_USER}
       - DB_POSTGRESDB_PASSWORD=${POSTGRES_NON_ROOT_PASSWORD}
-      # - N8N_RUNNERS_MODE=external
-      # - N8N_RUNNERS_AUTH_TOKEN=${RUNNERS_AUTH_TOKEN}
-      # - N8N_RUNNERS_BROKER_LISTEN_ADDRESS=0.0.0.0
-      - N8N_HOST=lesha-bibasic-felix.ngrok-free.dev
+      - N8N_HOST=${PUBLIC_DOMAIN}
       - N8N_PROTOCOL=https
       - N8N_PORT=5678
       - N8N_EDITOR_BASE_URL=https://${PUBLIC_DOMAIN}
@@ -49,8 +47,6 @@ services:
       - N8N_DIAGNOSTICS_ENABLED=false
       - N8N_VERSION_NOTIFICATIONS_ENABLED=false
       - N8N_TEMPLATES_ENABLED=false
-
-
     ports:
       - 5678:5678
     links:
@@ -61,26 +57,37 @@ services:
       postgres:
         condition: service_healthy
 
-  openwebui:
-    image: ghcr.io/open-webui/open-webui:main
-    ports:
-      - "3000:8080"
+  backend:
+    build:
+      context: ./web/backend
+    container_name: backend
+    env_file: .env
     environment:
-      - WEBUI_AUTH=false
-      - ENABLE_OLLAMA_API=false
-      - ENABLE_OPENAI_API=true
-      - OPENAI_API_BASE_URL=https://${PUBLIC_DOMAIN}/webhook-test/v1
-      - OPENAI_API_KEY=not-needed
-      - OFFLINE_MODE=true
-      - HF_HUB_OFFLINE=1
-      - DEFAULT_MODELS=glm
-      - ENABLE_PERSISTENT_CONFIG=false
-      - RAG_EMBEDDING_MODEL_AUTO_UPDATE=false
-      - RAG_RERANKING_MODEL_AUTO_UPDATE=false
-      - WHISPER_MODEL_AUTO_UPDATE=false
-      - BYPASS_EMBEDDING_AND_RETRIEVAL=true
-    volumes:
-      - open-webui:/app/backend/data
+      - APP_DB_HOST=n8n-postgres
+      - APP_DB_PORT=5432
+      - APP_DB_NAME=${APP_DB_NAME}
+      - POSTGRES_NON_ROOT_USER=${POSTGRES_NON_ROOT_USER}
+      - POSTGRES_NON_ROOT_PASSWORD=${POSTGRES_NON_ROOT_PASSWORD}
+      - BOT_TOKEN=${BOT_TOKEN}
+      - JWT_SECRET=${JWT_SECRET}
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ./web/frontend
+    container_name: frontend
+    environment:
+      - BACKEND_URL=http://backend:8000
+      - NEXT_PUBLIC_API_URL=http://localhost:8000
+      - NEXT_PUBLIC_BOT_NAME=${NEXT_PUBLIC_BOT_NAME}
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
 
   # n8n-runner:
   #   image: n8nio/runners:${N8N_VERSION}

@@ -1,0 +1,113 @@
+{
+  "name": "telegram triggers",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -624,
+        48
+      ],
+      "id": "3638e0f7-41c7-43e4-8357-3afaccd4967f",
+      "name": "Telegram Trigger",
+      "webhookId": "2f3247ab-60fc-4610-9663-61af8199e7b1",
+      "credentials": {
+        "telegramApi": {
+          "id": "TYmIXSdV5YnfSGKS",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "nLlbcUE6TK8RjlQN",
+          "mode": "id",
+          "cachedResultUrl": "/workflow/nLlbcUE6TK8RjlQN"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        -240,
+        -96
+      ],
+      "id": "7bb12f00-9ede-4c32-8e5b-6f8820fb6794",
+      "name": "Call 'TG Bot Chat'"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "kfGz30LmD147Ak0V",
+          "mode": "id",
+          "cachedResultUrl": "/workflow/kfGz30LmD147Ak0V"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        -240,
+        112
+      ],
+      "id": "d9e5efcb-4927-4ea7-9d7f-a6b657f5e9ef",
+      "name": "Call 'Chat listener'"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Call 'TG Bot Chat'",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Call 'Chat listener'",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "7d90754e-1089-481e-a7e0-2ea49b8f6c65",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "7da312d70899664f516d5e77deb9b439877da5c4962b162a8174dabe3dc9723d"
+  },
+  "id": "y9WSfPJK5KcETZrJ",
+  "tags": []
+}
