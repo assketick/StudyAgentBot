@@ -6,31 +6,31 @@
         "sessionIdType": "customKey",
         "sessionKey": "={{ $('Listen for incoming events').first().json.message.from.id }}"
       },
-      "id": "cbab8078-3ecf-47de-b59c-a1cbd6418d3e",
+      "id": "103f0f12-431b-4bc4-a4c6-e156eb9d3cef",
       "name": "Window Buffer Memory",
       "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
       "position": [
-        2512,
-        720
+        2656,
+        416
       ],
       "typeVersion": 1.2
     },
     {
       "parameters": {
-        "model": "=zai-org/GLM-5.1-FP8",
+        "model": "gpt-3.5-turbo",
         "options": {}
       },
-      "id": "55a836fb-f0e1-48be-b953-e7e2e08e2f4d",
+      "id": "15e28ebd-4763-49bf-b85f-aca36c4dfeea",
       "name": "OpenAI Chat Model",
       "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
       "position": [
-        2240,
-        688
+        2384,
+        384
       ],
       "typeVersion": 1,
       "credentials": {
         "openAiApi": {
-          "id": "Fz8JhUFBCwCnr0Mo",
+          "id": "gJf79SyAWrNqHeex",
           "name": "OpenAI account"
         }
       }
@@ -42,18 +42,18 @@
         ],
         "additionalFields": {}
       },
-      "id": "f6129b79-46ec-465c-a917-b2dd597c9e0f",
+      "id": "4ebcc501-6b65-46b6-bf48-cb910fdf5b4e",
       "name": "Listen for incoming events",
       "type": "n8n-nodes-base.telegramTrigger",
       "position": [
-        832,
-        336
+        448,
+        16
       ],
       "webhookId": "322dce18-f93e-4f86-b9b1-3305519b7834",
       "typeVersion": 1,
       "credentials": {
         "telegramApi": {
-          "id": "TYmIXSdV5YnfSGKS",
+          "id": "NSEtlrAAOR6gCNW1",
           "name": "Telegram account"
         }
       }
@@ -67,18 +67,18 @@
           "parse_mode": "HTML"
         }
       },
-      "id": "e5054d93-e4cb-4d6b-917b-a5dc7b529717",
+      "id": "37e978be-a21e-4827-90de-6970886ffb9e",
       "name": "Telegram",
       "type": "n8n-nodes-base.telegram",
       "position": [
-        3072,
-        336
+        3216,
+        32
       ],
       "webhookId": "e699405e-8e52-4d38-a06b-1fa8edf050bd",
       "typeVersion": 1.1,
       "credentials": {
         "telegramApi": {
-          "id": "TYmIXSdV5YnfSGKS",
+          "id": "NSEtlrAAOR6gCNW1",
           "name": "Telegram account"
         }
       },
@@ -88,10 +88,10 @@
       "parameters": {
         "conditions": {
           "options": {
-            "version": 2,
-            "leftValue": "",
             "caseSensitive": true,
-            "typeValidation": "strict"
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
           },
           "conditions": [
             {
@@ -109,12 +109,12 @@
         },
         "options": {}
       },
-      "id": "508145c5-5c48-4294-ac0d-7f8e5028a643",
+      "id": "e5a1008a-3fcb-41a6-893e-d83d2b9e48bc",
       "name": "If",
       "type": "n8n-nodes-base.if",
       "position": [
-        1728,
-        336
+        1872,
+        32
       ],
       "typeVersion": 2.2
     },
@@ -124,18 +124,18 @@
         "operation": "transcribe",
         "options": {}
       },
-      "id": "08ae0dcc-7846-44d4-b2e3-1150f6e7572e",
+      "id": "da322854-d20b-489e-b7a1-b8340861e65f",
       "name": "Speech to Text",
       "type": "@n8n/n8n-nodes-langchain.openAi",
       "position": [
-        2176,
-        256
+        2320,
+        -48
       ],
       "typeVersion": 1.3,
       "credentials": {
         "openAiApi": {
-          "id": "S6tQaCe5Bd0iIifQ",
-          "name": "wisper"
+          "id": "gJf79SyAWrNqHeex",
+          "name": "OpenAI account"
         }
       }
     },
@@ -151,12 +151,12 @@
         },
         "options": {}
       },
-      "id": "71ea73a0-a5db-4153-9531-19be6083ea4d",
+      "id": "f664a6ba-425c-4b4e-be5c-d63568588664",
       "name": "Voice or Text",
       "type": "n8n-nodes-base.set",
       "position": [
-        1504,
-        336
+        1648,
+        32
       ],
       "typeVersion": 3.2
     },
@@ -166,18 +166,18 @@
         "fileId": "={{ $('Listen for incoming events').item.json.message.voice.file_id }}",
         "additionalFields": {}
       },
-      "id": "f9b6fe61-0e09-4432-a582-0b62a8731861",
+      "id": "c62b9c25-16f1-4081-a8a6-a7f2ab6f7189",
       "name": "Get Voice File",
       "type": "n8n-nodes-base.telegram",
       "position": [
-        1952,
-        256
+        2096,
+        -48
       ],
       "webhookId": "24273e7e-6133-415e-8627-a9d6dc0f107c",
       "typeVersion": 1.1,
       "credentials": {
         "telegramApi": {
-          "id": "TYmIXSdV5YnfSGKS",
+          "id": "NSEtlrAAOR6gCNW1",
           "name": "Telegram account"
         }
       }
@@ -190,28 +190,28 @@
           "systemMessage": "=You are a helpful assistant.\n\nToday's date is {{ $now }}.\n\nGuidelines:\n- if there is a message about deadline, use postgres tool to execute an sql query and save the data to storage. If you don't have enough information to store the data you can ask user. The tables schema will be listed below.\n- if the user did not specify a date in the request assume they are asking for today\n- Use baserow tool to answer questions about tasks\n- When answering questions about calendar events, filter out events that don't apply to the question.  For example, the question is about events for today, only reply with events for today. Don't mention future events if it's more than 1 week away\n\nIMPORTANT:\n- your message will be sent to Telegram using HTML parse mode\n- use only Telegram-compatible HTML tags: <b>, <i>, <code>, <pre>\n- do not use markdown tables\n- format lists and saved deadlines as plain text with line breaks\n- do not output unsupported HTML tags\n\nPOSTGRES TABLE SCHEMA:\nclass User(Base):\n    __tablename__ = \"users\"\n\n    id: Mapped[int] = mapped_column(primary_key=True)\n    tg_user_id: Mapped[int] = mapped_column(\n        BigInteger, unique=True, index=True, nullable=False\n    )\n    username: Mapped[str | None] = mapped_column(String(255), nullable=True)\n    first_name: Mapped[str | None] = mapped_column(String(255), nullable=True)\n    last_name: Mapped[str | None] = mapped_column(String(255), nullable=True)\n    created_at: Mapped[datetime] = mapped_column(\n        DateTime(timezone=True), default=utcnow, nullable=False\n    )\n    updated_at: Mapped[datetime] = mapped_column(\n        DateTime(timezone=True),\n        default=utcnow,\n        onupdate=utcnow,\n        nullable=False,\n    )\n\n    deadlines: Mapped[list[\"Deadline\"]] = relationship(\n        back_populates=\"user\",\n        cascade=\"all, delete-orphan\",\n    )\n\n\nclass Deadline(Base):\n    __tablename__ = \"deadlines\"\n\n    id: Mapped[int] = mapped_column(primary_key=True)\n    user_id: Mapped[int] = mapped_column(\n        ForeignKey(\"users.id\", ondelete=\"CASCADE\"), nullable=False, index=True\n    )\n    title: Mapped[str] = mapped_column(String(500), nullable=False)\n    subject: Mapped[str | None] = mapped_column(String(255), nullable=True)\n    due_at: Mapped[datetime] = mapped_column(\n        DateTime(timezone=True), nullable=False, index=True\n    )\n    status: Mapped[str] = mapped_column(\n        String(32), default=\"active\", nullable=False, index=True\n    )\n    source_text: Mapped[str] = mapped_column(Text, nullable=False)\n    source_chat_id: Mapped[int | None] = mapped_column(\n        BigInteger, nullable=True, index=True\n    )\n    source_message_id: Mapped[int | None] = mapped_column(\n        BigInteger, nullable=True\n    )\n    reminded_at: Mapped[datetime | None] = mapped_column(\n        DateTime(timezone=True), nullable=True\n    )\n    created_at: Mapped[datetime] = mapped_column(\n        DateTime(timezone=True), default=utcnow, nullable=False\n    )\n    updated_at: Mapped[datetime] = mapped_column(\n        DateTime(timezone=True),\n        default=utcnow,\n        onupdate=utcnow,\n        nullable=False,\n    )\n\n    user: Mapped[\"User\"] = relationship(back_populates=\"deadlines\")\n\n    __table_args__ = (\n        Index(\"ix_deadlines_user_status_due_at\", \"user_id\", \"status\", \"due_at\"),\n    )\n"
         }
       },
-      "id": "40230414-3dfa-4e53-b5b0-f2380346b64b",
+      "id": "f216e021-f6f2-44db-801a-5b1c99f2d9a9",
       "name": "Angie, AI Assistant 👩🏻‍🏫",
       "type": "@n8n/n8n-nodes-langchain.agent",
       "position": [
-        2448,
-        400
+        2592,
+        96
       ],
       "typeVersion": 1.6
     },
     {
       "parameters": {
         "content": "## Process Telegram Request\n",
-        "height": 327,
+        "height": 487,
         "width": 800,
         "color": 5
       },
-      "id": "e99295de-50bd-47d5-a122-e049522f35b3",
+      "id": "5eaa7d10-31b9-472f-98ed-9d12a44fe7e1",
       "name": "Sticky Note",
       "type": "n8n-nodes-base.stickyNote",
       "position": [
-        1488,
-        224
+        1632,
+        -80
       ],
       "typeVersion": 1
     },
@@ -223,18 +223,18 @@
               "id": "1c20cf16-ec00-4ceb-9b0b-7192345a2d0b",
               "name": "allow",
               "type": "number",
-              "value": 499260283
+              "value": 839907871
             }
           ]
         },
         "options": {}
       },
-      "id": "3c861029-3fee-47db-a994-4c9b75895d4d",
+      "id": "80210b52-3d35-46a9-9781-ac9286676014",
       "name": "AllowList",
       "type": "n8n-nodes-base.set",
       "position": [
-        1056,
-        336
+        672,
+        16
       ],
       "typeVersion": 3.4
     },
@@ -242,10 +242,10 @@
       "parameters": {
         "conditions": {
           "options": {
-            "version": 3,
-            "leftValue": "",
             "caseSensitive": true,
-            "typeValidation": "strict"
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
           },
           "conditions": [
             {
@@ -262,12 +262,12 @@
         },
         "options": {}
       },
-      "id": "2bcd17b6-a6c5-4348-9408-3dd26fbf3a1c",
+      "id": "c150a9d3-04d2-4af4-9524-5b73591f82bb",
       "name": "If1",
       "type": "n8n-nodes-base.if",
       "position": [
-        1280,
-        336
+        896,
+        16
       ],
       "typeVersion": 2.3
     },
@@ -278,12 +278,12 @@
         "width": 448,
         "color": 5
       },
-      "id": "0997afe1-be45-4338-ade2-fc22adf96ca6",
+      "id": "79581bd2-9493-4bf2-a0f6-3ff34540de09",
       "name": "Sticky Note1",
       "type": "n8n-nodes-base.stickyNote",
       "position": [
-        1008,
-        224
+        624,
+        -96
       ],
       "typeVersion": 1
     },
@@ -324,11 +324,149 @@
       "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
       "typeVersion": 2.2,
       "position": [
-        2800,
-        688
+        2944,
+        384
       ],
-      "id": "4eb4d9b1-242a-443b-930f-211a2717ba0b",
+      "id": "0264845e-dfbf-4941-8d82-d7c3441abc27",
       "name": "Call n8n Workflow Tool"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "74a6aaad-6a5f-4047-975d-efcc8dea6cf5",
+              "leftValue": "={{ $json.message.document.file_id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1200,
+        0
+      ],
+      "id": "a6acd66a-8eea-4eaf-8926-79ba1f4fe4b3",
+      "name": "If2"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "UBok9BEcCcS6fBJT",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/UBok9BEcCcS6fBJT",
+          "cachedResultName": "Sub RAG_indexing"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "file_id": "=={{ $json.message.document.file_id }}",
+            "chat_id": "=={{ $json.message.chat.id }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "file_id",
+              "displayName": "file_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "chat_id",
+              "displayName": "chat_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "number",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        1456,
+        -304
+      ],
+      "id": "8d257837-decf-43d4-a34a-bb953e6922ee",
+      "name": "Execute Workflow"
+    },
+    {
+      "parameters": {
+        "chatId": "=={{ $('Listen for incoming events').first().json.message.chat.id }}",
+        "text": "=✅ Файл успешно проиндексирован. Добавлено {{ $json.chunks_count }} фрагментов.",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1664,
+        -304
+      ],
+      "id": "f6eb9a60-c468-4f25-9e9e-9fe0e97e815f",
+      "name": "Send a text message",
+      "webhookId": "d2ff79a8-3f57-47fa-afc7-2c60489611c1",
+      "credentials": {
+        "telegramApi": {
+          "id": "NSEtlrAAOR6gCNW1",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "description": "Call this tool to find relevant information from user files",
+        "workflowId": {
+          "__rl": true,
+          "value": "iPhg6wfbKMfMbqzn",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/iPhg6wfbKMfMbqzn",
+          "cachedResultName": "Sub RAG_search"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        2800,
+        368
+      ],
+      "id": "1677b14f-1281-4ecd-a94e-4b238e3b1b93",
+      "name": "Call n8n Workflow Tool1"
     }
   ],
   "pinData": {},
@@ -355,7 +493,7 @@
       "main": [
         [
           {
-            "node": "Voice or Text",
+            "node": "If2",
             "type": "main",
             "index": 0
           }
@@ -460,18 +598,58 @@
           }
         ]
       ]
+    },
+    "If2": {
+      "main": [
+        [
+          {
+            "node": "Execute Workflow",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Voice or Text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute Workflow": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call n8n Workflow Tool1": {
+      "ai_tool": [
+        [
+          {
+            "node": "Angie, AI Assistant 👩🏻‍🏫",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
-  "active": true,
+  "active": false,
   "settings": {
     "executionOrder": "v1",
     "binaryMode": "separate"
   },
-  "versionId": "63d42ba9-e1fa-4c40-a9a3-942dee9e2437",
+  "versionId": "b18e0b64-4a25-4ca3-b09b-cb7b6f768e30",
   "meta": {
     "templateCredsSetupCompleted": true,
-    "instanceId": "7da312d70899664f516d5e77deb9b439877da5c4962b162a8174dabe3dc9723d"
+    "instanceId": "51a38a7465d855d6b5262c5db6144654f8756201725b66210c2cf807901a5a97"
   },
-  "id": "nLlbcUE6TK8RjlQN",
+  "id": "uxo5leiabK8FC5I4",
   "tags": []
 }

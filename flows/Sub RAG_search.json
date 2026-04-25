@@ -1,0 +1,187 @@
+{
+  "name": "Sub RAG_search",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "question"
+            }
+          ]
+        }
+      },
+      "id": "c055762a-8fe7-4141-a639-df2372f30060",
+      "typeVersion": 1.1,
+      "name": "When Executed by Another Workflow",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        480,
+        576
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "aad159a4-ff97-4edb-9bf5-253655d3b340",
+      "name": "Embedding of Question",
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        1216,
+        1024
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "gJf79SyAWrNqHeex",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o-mini",
+        "options": {
+          "temperature": 0.2
+        }
+      },
+      "id": "29c55bb3-6738-4a9d-87ac-3d92a7491d00",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [
+        960,
+        832
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "gJf79SyAWrNqHeex",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "Инструмент: Поиск по корпоративной базе знаний\n\nИспользуй этот инструмент для поиска информации по загруженным документам, контрактам, инструкциям или любым историческим данным. Он предназначен для ответов на вопросы, требующие знания фактов из приложенных файлов (PDF). Всегда применяй его, когда пользовательский запрос касается содержания этих файлов. Важно: этот инструмент не предназначен для общих вопросов или ведения диалога — только для извлечения специфической информации из документов",
+        "tableName": "doc_chunks",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePGVector",
+      "typeVersion": 1.3,
+      "position": [
+        1136,
+        832
+      ],
+      "id": "524bc666-db08-48dd-a180-9524d45395a5",
+      "name": "Postgres PGVector Store",
+      "credentials": {
+        "postgres": {
+          "id": "eaW56bD2SGaKUnEN",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nfor (const item of $input.all()) {\n  item.json.myNewField = 1;\n}\n\nreturn $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1536,
+        592
+      ],
+      "id": "37d41be1-37a6-468a-8f1e-2e39d32aeced",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        896,
+        528
+      ],
+      "id": "82b5b43d-02d2-466d-b27e-2daed2da0524",
+      "name": "AI Agent"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embedding of Question": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Postgres PGVector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres PGVector Store": {
+      "main": [
+        []
+      ],
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "1ffb4ac4-5fe6-4e02-a981-c8fb773fbf4e",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "51a38a7465d855d6b5262c5db6144654f8756201725b66210c2cf807901a5a97"
+  },
+  "id": "iPhg6wfbKMfMbqzn",
+  "tags": []
+}
