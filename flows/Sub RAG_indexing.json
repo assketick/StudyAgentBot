@@ -27,7 +27,7 @@
     {
       "parameters": {
         "resource": "file",
-        "fileId": "=={{ $json.file_id }}",
+        "fileId": "={{ $json.file_id }}",
         "additionalFields": {}
       },
       "type": "n8n-nodes-base.telegram",
@@ -232,7 +232,7 @@
     "binaryMode": "separate",
     "availableInMCP": false
   },
-  "versionId": "0e9210aa-e3fd-4d66-8868-c17fe7cef8be",
+  "versionId": "f4c43ee9-94c0-4544-9563-9e42133e03cc",
   "meta": {
     "instanceId": "51a38a7465d855d6b5262c5db6144654f8756201725b66210c2cf807901a5a97"
   },

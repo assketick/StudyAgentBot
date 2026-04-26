@@ -227,6 +227,7 @@
             }
           ]
         },
+        "includeOtherFields": true,
         "options": {}
       },
       "id": "80210b52-3d35-46a9-9781-ac9286676014",
@@ -289,49 +290,6 @@
     },
     {
       "parameters": {
-        "description": "Call this tool to execute sql query in PostgreSQL Database.",
-        "workflowId": {
-          "__rl": true,
-          "value": "z8oyhSAmVpeMH4OH",
-          "mode": "list",
-          "cachedResultUrl": "/workflow/z8oyhSAmVpeMH4OH",
-          "cachedResultName": "Postgres-Sub-Workflow"
-        },
-        "workflowInputs": {
-          "mappingMode": "defineBelow",
-          "value": {
-            "query": "={{ $fromAI(\"query\") }}"
-          },
-          "matchingColumns": [
-            "query"
-          ],
-          "schema": [
-            {
-              "id": "query",
-              "displayName": "query",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "canBeUsedToMatch": true,
-              "type": "string",
-              "removed": false
-            }
-          ],
-          "attemptToConvertTypes": false,
-          "convertFieldsToString": false
-        }
-      },
-      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
-      "typeVersion": 2.2,
-      "position": [
-        2944,
-        384
-      ],
-      "id": "0264845e-dfbf-4941-8d82-d7c3441abc27",
-      "name": "Call n8n Workflow Tool"
-    },
-    {
-      "parameters": {
         "conditions": {
           "options": {
             "caseSensitive": true,
@@ -376,8 +334,8 @@
         "workflowInputs": {
           "mappingMode": "defineBelow",
           "value": {
-            "file_id": "=={{ $json.message.document.file_id }}",
-            "chat_id": "=={{ $json.message.chat.id }}"
+            "file_id": "={{ $json.message.document.file_id }}",
+            "chat_id": "={{ $json.message.chat.id }}"
           },
           "matchingColumns": [],
           "schema": [
@@ -402,7 +360,7 @@
               "removed": false
             }
           ],
-          "attemptToConvertTypes": false,
+          "attemptToConvertTypes": true,
           "convertFieldsToString": true
         },
         "options": {
@@ -453,8 +411,21 @@
         "workflowInputs": {
           "mappingMode": "defineBelow",
           "value": {},
-          "matchingColumns": [],
-          "schema": [],
+          "matchingColumns": [
+            "question"
+          ],
+          "schema": [
+            {
+              "id": "question",
+              "displayName": "question",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
           "attemptToConvertTypes": false,
           "convertFieldsToString": false
         }
@@ -466,7 +437,50 @@
         368
       ],
       "id": "1677b14f-1281-4ecd-a94e-4b238e3b1b93",
-      "name": "Call n8n Workflow Tool1"
+      "name": "Call n8n Workflow RAG_search"
+    },
+    {
+      "parameters": {
+        "description": "Call this tool to execute sql query in PostgreSQL Database.",
+        "workflowId": {
+          "__rl": true,
+          "value": "z8oyhSAmVpeMH4OH",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/z8oyhSAmVpeMH4OH",
+          "cachedResultName": "Postgres-Sub-Workflow"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "query": "={{ $fromAI(\"query\") }}"
+          },
+          "matchingColumns": [
+            "query"
+          ],
+          "schema": [
+            {
+              "id": "query",
+              "displayName": "query",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        2944,
+        384
+      ],
+      "id": "0264845e-dfbf-4941-8d82-d7c3441abc27",
+      "name": "Call n8n Workflow Postgres"
     }
   ],
   "pinData": {},
@@ -588,17 +602,6 @@
         ]
       ]
     },
-    "Call n8n Workflow Tool": {
-      "ai_tool": [
-        [
-          {
-            "node": "Angie, AI Assistant 👩🏻‍🏫",
-            "type": "ai_tool",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "If2": {
       "main": [
         [
@@ -628,7 +631,18 @@
         ]
       ]
     },
-    "Call n8n Workflow Tool1": {
+    "Call n8n Workflow RAG_search": {
+      "ai_tool": [
+        [
+          {
+            "node": "Angie, AI Assistant 👩🏻‍🏫",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call n8n Workflow Postgres": {
       "ai_tool": [
         [
           {
@@ -645,7 +659,7 @@
     "executionOrder": "v1",
     "binaryMode": "separate"
   },
-  "versionId": "b18e0b64-4a25-4ca3-b09b-cb7b6f768e30",
+  "versionId": "2c60f303-267c-451c-9e4d-45f1ea0607cd",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "51a38a7465d855d6b5262c5db6144654f8756201725b66210c2cf807901a5a97"

@@ -49,6 +49,9 @@ services:
       - N8N_DIAGNOSTICS_ENABLED=false
       - N8N_VERSION_NOTIFICATIONS_ENABLED=false
       - N8N_TEMPLATES_ENABLED=false
+      # - N8N_DISABLE_PUSH_ORIGIN_CHECK=true
+      # - N8N_PUSH_BACKEND=sse
+
 
 
     ports:
@@ -61,26 +64,26 @@ services:
       postgres:
         condition: service_healthy
 
-  openwebui:
-    image: ghcr.io/open-webui/open-webui:main
-    ports:
-      - "3000:8080"
-    environment:
-      - WEBUI_AUTH=false
-      - ENABLE_OLLAMA_API=false
-      - ENABLE_OPENAI_API=true
-      - OPENAI_API_BASE_URL=https://${PUBLIC_DOMAIN}/webhook-test/v1
-      - OPENAI_API_KEY=not-needed
-      - OFFLINE_MODE=true
-      - HF_HUB_OFFLINE=1
-      - DEFAULT_MODELS=glm
-      - ENABLE_PERSISTENT_CONFIG=false
-      - RAG_EMBEDDING_MODEL_AUTO_UPDATE=false
-      - RAG_RERANKING_MODEL_AUTO_UPDATE=false
-      - WHISPER_MODEL_AUTO_UPDATE=false
-      - BYPASS_EMBEDDING_AND_RETRIEVAL=true
-    volumes:
-      - open-webui:/app/backend/data
+  # openwebui:
+  #   image: ghcr.io/open-webui/open-webui:main
+  #   ports:
+  #     - "3000:8080"
+  #   environment:
+  #     - WEBUI_AUTH=false
+  #     - ENABLE_OLLAMA_API=false
+  #     - ENABLE_OPENAI_API=true
+  #     - OPENAI_API_BASE_URL=https://${PUBLIC_DOMAIN}/webhook-test/v1
+  #     - OPENAI_API_KEY=not-needed
+  #     - OFFLINE_MODE=true
+  #     - HF_HUB_OFFLINE=1
+  #     - DEFAULT_MODELS=glm
+  #     - ENABLE_PERSISTENT_CONFIG=false
+  #     - RAG_EMBEDDING_MODEL_AUTO_UPDATE=false
+  #     - RAG_RERANKING_MODEL_AUTO_UPDATE=false
+  #     - WHISPER_MODEL_AUTO_UPDATE=false
+  #     - BYPASS_EMBEDDING_AND_RETRIEVAL=true
+  #   volumes:
+  #     - open-webui:/app/backend/data
 
   # n8n-runner:
   #   image: n8nio/runners:${N8N_VERSION}
